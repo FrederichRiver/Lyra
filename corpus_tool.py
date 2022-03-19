@@ -25,7 +25,7 @@ ner_config = {
 wordiv_config = {
     "ui": 2,
     "title": "Wordiv Tool",
-    "div": ':',
+    "div": ' ',
     "width": 450,
     "word_label_width": 100,
     "label": ['Y', "N"],
@@ -115,7 +115,7 @@ class NeuScrollArea(QScrollArea):
         self.vlayout.setContentsMargins(0, 0, 0, 0)
 
     def loadui(self, ui_type, filename):
-        self.backthread = ReadFile(filename, ui_type)
+        self.backthread = ReadFile(filename, self.param, ui_type)
         if ui_type == 1:
             self.backthread.word_flag_widget.connect(self.generate_word_label)
         elif ui_type == 2:
@@ -136,10 +136,10 @@ class NeuScrollArea(QScrollArea):
 class ReadFile(QThread):
     word_flag_widget = pyqtSignal(dict)
     word_div = pyqtSignal(str)
-    def __init__(self, file_name: str, event_type=1) -> None:
+    def __init__(self, file_name: str, param) -> None:
         super(ReadFile, self).__init__()
         self.filename = file_name
-        self.event_type = event_type
+        self.param = param
 
     def run(self):
         i = 0
@@ -148,7 +148,7 @@ class ReadFile(QThread):
                 if self.event_type == 1:
                     self.word_flag_widget.emit(dict(Text=line[0], Label=0))
                 elif self.event_type == 2:
-                    result = line.split(':')
+                    result = line.split(self.param['div'])
                     self.word_div.emit(result[0])
                 i += 1
                 if i == 50:
@@ -252,6 +252,10 @@ def article2word():
                         g.write(f"{line[i]}\n")
 
 if __name__ == '__main__':
+    app = QApplication(sys.argv)    
+    demo = Corpus_tool(wordiv_config)
+    sys.exit(app.exec_())
+    """
     if sys.argv[1] == 'img':
         app = QApplication(sys.argv)
         p = 'Screenshot from 2021-12-22 13-50-22.png'
@@ -277,3 +281,4 @@ if __name__ == '__main__':
         sys.exit(app.exec_())
     elif sys.argv[1] == 'cov':
         article2word()
+    """
